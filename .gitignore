@@ -1,0 +1,17 @@
+.DS_Store
+DerivedData/
+.build/
+Packages/
+.swiftpm/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Keep local credentials and machine-specific package manager config out of Git.
+.netrc
+.env
+.env.*
+*.p8
+*.p12
+*.mobileprovision
+*.provisionprofile
