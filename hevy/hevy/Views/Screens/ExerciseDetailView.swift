@@ -20,6 +20,8 @@ struct ExerciseDetailView: View {
                     .foregroundStyle(.white)
                 LabeledContent("Equipment", value: exercise.equipment ?? "None")
                     .foregroundStyle(.white)
+                LabeledContent("Mechanic", value: exercise.mechanic ?? "None")
+                    .foregroundStyle(.white)
             }
             .listRowBackground(Color.black)
 

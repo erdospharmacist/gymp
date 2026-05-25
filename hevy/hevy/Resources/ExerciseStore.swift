@@ -56,27 +56,36 @@ final class ExerciseStore {
     //loads the exercise JSON files that are bundled with the app
     private func loadBundledExercises() -> [Exercise] {
 
+        //if Xcode preserves the exercises folder, load every JSON file inside it
         let filesInExerciseFolder = Bundle.main.urls(forResourcesWithExtension: "json", subdirectory: "exercises") ?? []
+
+        //if Xcode flattens the resources, the exercise JSON files appear at the app bundle root
         let filesInRoot = Bundle.main.urls(forResourcesWithExtension: "json", subdirectory: nil) ?? []
 
         let allFiles = Array(Set(filesInExerciseFolder + filesInRoot)).sorted {
-            $0.lastPathComponent < $1.lastPathComponent
+            $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent) == .orderedAscending
         }
 
         var loadedByID: [String: Exercise] = [:]
+        var failedFileNames: [String] = []
 
         for fileURL in allFiles {
             do {
                 let data = try Data(contentsOf: fileURL)
                 let exercise = try decoder.decode(Exercise.self, from: data)
                 loadedByID[exercise.id] = exercise
-                print("loaded: \(exercise.name)")
 
             } catch {
-                print("failed decoding \(fileURL.lastPathComponent): \(error)")
+                failedFileNames.append(fileURL.lastPathComponent)
             }
         }
-        print("final loaded ex count: \(loadedByID.count)")
+
+        //log one summary so a 750+ file exercise folder does not spam the Xcode console
+        if failedFileNames.isEmpty {
+            print("loaded \(loadedByID.count) bundled exercises from \(allFiles.count) JSON files")
+        } else {
+            print("loaded \(loadedByID.count) bundled exercises from \(allFiles.count) JSON files; skipped \(failedFileNames.count): \(failedFileNames.joined(separator: ", "))")
+        }
 
         return loadedByID.values.sorted {
             $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
