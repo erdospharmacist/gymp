@@ -49,6 +49,20 @@ struct ExerciseRowView: View {
     }
 }
 
+private let exampleExercise = Exercise(
+    id: "Barbell_Bench_Press",
+    name: "Barbell Bench Press",
+    force: "push",
+    level: "beginner",
+    mechanic: "compound",
+    equipment: "barbell",
+    primaryMuscles: ["chest"],
+    secondaryMuscles: ["triceps", "shoulders"],
+    instructions: [],
+    category: "strength",
+    images: []
+)
+
 #Preview {
-    ExerciseRowView(exercise: MockTrainingData.benchPress)
+    ExerciseRowView(exercise: exampleExercise)
 }
