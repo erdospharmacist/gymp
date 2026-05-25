@@ -14,6 +14,7 @@ struct WorkoutSessionView: View {
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
+    //creates the workout screen with its session view model and exercise catalog
     init(session: WorkoutSession, allExercises: [Exercise]) {
         _viewModel = StateObject(wrappedValue: WorkoutSessionViewModel(session: session))
         self.allExercises = allExercises
@@ -119,17 +120,11 @@ struct WorkoutSessionView: View {
     }
 }
 
-private let previewSession = WorkoutSession(
-    name: "Preview Workout",
-    startedAt: Date().addingTimeInterval(-900),
-    exercises: []
-)
-
 #Preview {
     NavigationStack {
         WorkoutSessionView(
-            session: previewSession,
-            allExercises: []
+            session: MockTrainingData.activeWorkout,
+            allExercises: MockTrainingData.exercises
         )
     }
 }

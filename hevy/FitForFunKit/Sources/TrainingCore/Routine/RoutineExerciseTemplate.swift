@@ -2,11 +2,13 @@ import Foundation
 
 public struct RoutineExerciseTemplate: Identifiable, Codable, Hashable {
     public var id: String { exerciseID }
+    //this points to Exercise.id rather than storing the whole exercise in the routine
     public var exerciseID: String
     public var targetSets: Int
     public var targetReps: Int?
     public var notes: String
 
+    //creates one exercise entry inside a routine template
     public init(
         exerciseID: String,
         targetSets: Int = 0,

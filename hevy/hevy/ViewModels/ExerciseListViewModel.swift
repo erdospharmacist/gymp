@@ -13,6 +13,7 @@ final class ExerciseListViewModel: ObservableObject {
 
     private let store = ExerciseStore()
     //
+    //loads exercises immediately so the list has data on first render
     init() {
         loadExercises()
     }
@@ -34,6 +35,7 @@ final class ExerciseListViewModel: ObservableObject {
         }
     }
     //
+    //turns a draft into a saved user exercise and refreshes the list
     func createExercise(from draft: ExerciseDraft) {
         let newExercise = draft.toExercise()
         do {
@@ -44,6 +46,7 @@ final class ExerciseListViewModel: ObservableObject {
         }
     }
 
+    //deletes a user exercise from storage and refreshes the list
     func deleteExercise(_ exercise: Exercise) {
         do {
             try store.deleteUserExercise(id: exercise.id)
@@ -53,6 +56,7 @@ final class ExerciseListViewModel: ObservableObject {
         }
     }
 
+    //reloads the merged bundled and user exercise catalog
     func loadExercises() {
         exercises = store.loadAllExercises()
     }

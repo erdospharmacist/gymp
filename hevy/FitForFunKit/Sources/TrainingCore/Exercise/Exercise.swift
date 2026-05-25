@@ -48,6 +48,7 @@ public struct Exercise: Identifiable, Codable, Hashable {
         case images
     }
 
+    //creates an exercise definition from explicit values
     public init(
         id: String,
         name: String,
@@ -74,9 +75,11 @@ public struct Exercise: Identifiable, Codable, Hashable {
         self.images = images
     }
 
+    //reads exercise JSON while allowing optional fields to be missing
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
+        //some exercise JSON is richer than others, so missing optional fields become nil or []
         self.id = try container.decode(String.self, forKey: .id)
         self.name = try container.decode(String.self, forKey: .name)
         self.force = try container.decodeIfPresent(String.self, forKey: .force)
@@ -90,9 +93,11 @@ public struct Exercise: Identifiable, Codable, Hashable {
         self.images = try container.decodeIfPresent([String].self, forKey: .images) ?? []
     }
 
+    //writes exercise data back to the same JSON shape the app can load
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
+        //write the same shape we can read from bundled and user-created exercise JSON
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encodeIfPresent(force, forKey: .force)
@@ -113,9 +118,11 @@ public struct ExerciseDraft {
     public var primaryMusclesText: String = ""
     public var secondaryMusclesText: String = ""
 
+    //creates an empty draft for the create-exercise form
     public init() {}
 
     //instance method
+    //turns form text into a proper Exercise model
     public func toExercise() -> Exercise {
         //functionality provided by foundation https://developer.apple.com/documentation/foundation/nsstring/trimmingcharacters(in:)
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -132,6 +139,7 @@ public struct ExerciseDraft {
 
     //getting rid of comma
     //static is cool it means function belongs to the type name when you call it
+    //splits comma-separated form text into clean muscle names
     private static func parseCommaSeparated(_ text: String) -> [String] {
         text
             .split(separator: ",")

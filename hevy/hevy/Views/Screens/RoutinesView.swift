@@ -87,6 +87,7 @@ struct RoutinesView: View {
         }
     }
 
+    //reorders routines in the visible list while editing
     private func moveRoutine(from source: IndexSet, to destination: Int) {
         routineViewModel.routines.move(fromOffsets: source, toOffset: destination)
     }

@@ -8,16 +8,19 @@ final class RoutineListViewModel: ObservableObject {
     @Published var routines: [Routine] = []
     private let store = RoutineStore()
 
+    //loads routines immediately so routine screens start with current data
     init() {
         loadRoutines()
     }
 
+    //reloads routines from storage and keeps them sorted by name
     func loadRoutines() {
         routines = store.loadRoutines().sorted {
             $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
         }
     }
 
+    //creates a new routine after trimming blank text
     func addRoutine(named name: String) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -25,12 +28,14 @@ final class RoutineListViewModel: ObservableObject {
         saveRoutines()
     }
 
+    //removes a routine from the in-memory list and saves the change
     func deleteRoutine(_ routine: Routine) {
         //$0 is current item in array
         routines.removeAll { $0.id == routine.id }
         saveRoutines()
     }
 
+    //renames an existing routine when the new name is not blank
     func renameRoutine(_ routine: Routine, to newName: String) {
         let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -39,6 +44,7 @@ final class RoutineListViewModel: ObservableObject {
         saveRoutines()
     }
 
+    //links an exercise to a routine if it is not already included
     func addExercise(_ exercise: Exercise, to routine: Routine) {
         guard let index = routines.firstIndex(where: { $0.id == routine.id }) else { return }
         if !routines[index].exerciseIDs.contains(exercise.id) {
@@ -47,16 +53,19 @@ final class RoutineListViewModel: ObservableObject {
         }
     }
 
+    //removes an exercise link from a routine without deleting the exercise itself
     func removeExercise(_ exerciseID: String, from routine: Routine) {
         guard let index = routines.firstIndex(where: { $0.id == routine.id }) else { return }
         routines[index].exerciseIDs.removeAll { $0 == exerciseID }
         saveRoutines()
     }
 
+    //finds a routine currently loaded in memory
     func routine(withID id: String) -> Routine? {
         routines.first { $0.id == id }
     }
 
+    //persists the current routine list and reloads it after saving
     private func saveRoutines() {
         do {
             //store function

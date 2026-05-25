@@ -111,6 +111,7 @@ struct WorkoutExerciseSectionView: View {
         .foregroundColor(.primary)
     }
 
+    //looks up the freshest set value from the view model so bindings stay in sync
     private func currentSetValue(setID: UUID) -> WorkoutSet? {
         viewModel.session.exercises
             .first(where: { $0.id == workoutExercise.id })?

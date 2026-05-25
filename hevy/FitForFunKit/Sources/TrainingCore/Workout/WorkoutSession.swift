@@ -8,6 +8,7 @@ public struct WorkoutSession: Identifiable, Codable, Hashable {
     public var endedAt: Date?
     public var exercises: [WorkoutExercise] = []
 
+    //creates a saved or in-progress workout session
     public init(
         id: UUID = UUID(),
         routineID: String? = nil,
@@ -42,15 +43,18 @@ public struct WorkoutSession: Identifiable, Codable, Hashable {
 
     //take in routine convert the exercises in the routine to workout exercises
 
+    //builds a new workout session from a routine template and the current exercise catalog
     public static func make(from routine: Routine, allExercises: [Exercise]) -> WorkoutSession {
         //find matching from the list of exercises puts it into
         let lookup = Dictionary(uniqueKeysWithValues: allExercises.map { ($0.id, $0) })
         let workoutExercises = routine.exerciseTemplates.compactMap { template -> WorkoutExercise? in
+            //if an exercise was deleted from the catalog, skip it instead of crashing
             guard let exercise = lookup[template.exerciseID] else { return nil }
             let sets = (0..<template.targetSets).map { _ in
                 WorkoutSet(reps: template.targetReps ?? 0)
             }
 
+            //snapshot the name so logged workouts still make sense if the exercise changes later
             return WorkoutExercise(
                 exerciseID: exercise.id,
                 exerciseNameSnapshot: exercise.name,

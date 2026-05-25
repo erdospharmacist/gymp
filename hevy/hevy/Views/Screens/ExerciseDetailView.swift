@@ -38,6 +38,7 @@ struct ExerciseDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    //builds a labeled detail block for exercise metadata
     private func detailSection(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
@@ -56,16 +57,8 @@ struct ExerciseDetailView: View {
     }
 }
 
-private let exampleExercise = Exercise(
-    id: "bench_press",
-    name: "Bench Press",
-    equipment: "Barbell",
-    primaryMuscles: ["Chest"],
-    secondaryMuscles: ["Triceps", "Shoulders"]
-)
-
 #Preview {
     NavigationStack {
-        ExerciseDetailView(exercise: exampleExercise)
+        ExerciseDetailView(exercise: MockTrainingData.benchPress)
     }
 }

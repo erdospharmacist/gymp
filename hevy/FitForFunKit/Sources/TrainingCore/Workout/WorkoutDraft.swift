@@ -7,6 +7,7 @@ public struct WorkoutDraft: Identifiable, Hashable {
     public var startedAt: Date
     public var exercises: [WorkoutExercise]
 
+    //creates a mutable workout draft used while a workout is still being edited
     public init(
         id: UUID = UUID(),
         routineID: String? = nil,
@@ -21,6 +22,7 @@ public struct WorkoutDraft: Identifiable, Hashable {
         self.exercises = exercises
     }
 
+    //rebuilds an editable draft from a saved workout session
     public init(session: WorkoutSession) {
         self.id = session.id
         self.routineID = session.routineID
@@ -29,6 +31,7 @@ public struct WorkoutDraft: Identifiable, Hashable {
         self.exercises = session.exercises
     }
 
+    //turns the draft into a session that can be saved, optionally marking it finished
     public func loggedSession(endedAt: Date? = Date()) -> WorkoutSession {
         WorkoutSession(
             id: id,

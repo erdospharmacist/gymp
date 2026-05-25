@@ -9,6 +9,7 @@ public struct WorkoutSet: Identifiable, Codable, Hashable {
     var previousWeight: Double?
     public var previousReps: Int?
 
+    //creates one set, including optional previous values for workout context
     public init(
         id: UUID = UUID(),
         weight: Double = 0,

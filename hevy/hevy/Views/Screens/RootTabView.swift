@@ -19,6 +19,14 @@ struct RootTabView: View {
                 Image(systemName: "calendar")
                 Text("Calendar")
             }
+
+            NavigationStack {
+                ExerciseProgressView()
+            }
+            .tabItem {
+                Image(systemName: "chart.bar.xaxis")
+                Text("Stats")
+            }
         }
     }
 }

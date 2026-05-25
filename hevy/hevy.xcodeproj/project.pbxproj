@@ -13,7 +13,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B722E7E52FBB2414008AA98F /* FitForFunKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "FitForFunKit"; sourceTree = "<group>"; };
+		B722E7E52FBB2414008AA98F /* FitForFunKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = FitForFunKit; sourceTree = "<group>"; };
 		B7572D6A2FBADDCC00BE2922 /* FitForFun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitForFun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -357,7 +357,7 @@
 /* Begin XCLocalSwiftPackageReference section */
 		B722E7EA2FBB28A3008AA98F /* XCLocalSwiftPackageReference "FitForFunKit" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "FitForFunKit";
+			relativePath = FitForFunKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 

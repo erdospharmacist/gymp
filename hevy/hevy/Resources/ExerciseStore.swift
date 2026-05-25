@@ -1,15 +1,22 @@
 import Foundation
 import TrainingCore
+import TrainingStorage
 
 final class ExerciseStore {
     //I think this is probably best practice need to Ask Stu, intuitively though makes more readable
     private let decoder = JSONDecoder()
-    private let encoder = JSONEncoder()
+    private let store: JSONFileStore<[Exercise]>
 
+    //sets up the JSON store for user-created exercises
     init() {
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        do {
+            store = try JSONFileStore(filename: "user_exercises.json")
+        } catch {
+            fatalError("Failed to initialise exercise storage: \(error)")
+        }
     }
 
+    //loads bundled and user-created exercises into one sorted catalog
     func loadAllExercises() -> [Exercise] {
         let bundledExercises = loadBundledExercises()
         let userExercises = loadUserExercises()
@@ -34,6 +41,7 @@ final class ExerciseStore {
     }
 
     //This my func for adding a user exercise
+    //adds or replaces one user-created exercise in saved storage
     func addUserExercise(_ exercise: Exercise) throws {
         var existing = loadUserExercises()
 
@@ -45,6 +53,7 @@ final class ExerciseStore {
     }
 
     //private func
+    //loads the exercise JSON files that are bundled with the app
     private func loadBundledExercises() -> [Exercise] {
 
         let filesInExerciseFolder = Bundle.main.urls(forResourcesWithExtension: "json", subdirectory: "exercises") ?? []
@@ -76,17 +85,10 @@ final class ExerciseStore {
 
     //load saved exercises from the disk
     //I think should note this expect ONE file containing [Exercise]
+    //loads user-created exercises from Application Support
     private func loadUserExercises() -> [Exercise] {
-        let fileURL = userExercisesFileURL()
-        //omg no enum of cases of what not to have, just guard in the event of bad cases happening i.e. "guard against"
-        guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            print("📭 no user_exercises.json found yet")
-            return []
-        }
         do {
-            //read data
-            let data = try Data(contentsOf: fileURL)
-            let exercises = try decoder.decode([Exercise].self, from: data)
+            let exercises = try store.load(default: [])
             //this is printed in the corner on Xcode debugger, just copying what I saw Isaacs code do when it threw all those emojis
             print("✅ loaded \(exercises.count) user-created exercises")
             return exercises
@@ -96,37 +98,16 @@ final class ExerciseStore {
         }
     }
     //
+    //saves all user-created exercises back to disk
     private func saveUserExercises(_ exercises: [Exercise]) throws {
-
-        let fileURL = userExercisesFileURL()
-        let data = try encoder.encode(exercises)
-        try data.write(to: fileURL, options: .atomic)
-        print("💾 saved \(exercises.count) user-created exercises to \(fileURL.path)")
+        try store.save(exercises)
+        print("💾 saved \(exercises.count) user-created exercises")
     }
 
-    private func userExercisesFileURL() -> URL {
-        applicationSupportDirectory().appendingPathComponent("user_exercises.json")
-    }
-
+    //deletes a user-created exercise by ID from saved storage
     func deleteUserExercise(id: String) throws {
         var existing = loadUserExercises()
         existing.removeAll { $0.id == id }
         try saveUserExercises(existing)
-    }
-
-    //Creates the direc if doesn't exist else just pulls it up
-    private func applicationSupportDirectory() -> URL {
-        //had to use AI for this, still a bit unsure on this and what correct way to do is
-        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        //make sure directory exists before trying to save into it and just tries to create it
-        if !FileManager.default.fileExists(atPath: url.path) {
-            do {
-                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-            } catch {
-                print("❌ Failed to create Application Support directory: \(error)")
-            }
-        }
-        //return the path
-        return url
     }
 }

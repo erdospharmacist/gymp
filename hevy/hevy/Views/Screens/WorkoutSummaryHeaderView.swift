@@ -40,6 +40,7 @@ struct WorkoutSummaryHeaderView: View {
         )
     }
 
+    //builds one metric in the workout summary header
     private func statItem(title: String, value: String) -> some View {
         VStack(spacing: 4) {
             Text(title)

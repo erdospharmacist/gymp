@@ -72,6 +72,7 @@ struct CalendarView: View {
         }
     }
 
+    //loads saved workout sessions for the calendar list
     private func loadSessions() {
         do {
             sessions = try WorkoutSessionStore().loadSessions()

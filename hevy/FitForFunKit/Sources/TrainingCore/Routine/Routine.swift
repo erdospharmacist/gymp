@@ -5,12 +5,14 @@ public struct Routine: Identifiable, Codable, Hashable {
     public var name: String
     public var exerciseTemplates: [RoutineExerciseTemplate]
 
+    //creates a routine from a simple list of exercise IDs
     public init(id: String = UUID().uuidString, name: String, exerciseIDs: [String] = []) {
         self.id = id
         self.name = name
         self.exerciseTemplates = exerciseIDs.map { RoutineExerciseTemplate(exerciseID: $0) }
     }
 
+    //creates a routine from full exercise templates with set and rep targets
     public init(
         id: String = UUID().uuidString,
         name: String,
@@ -30,11 +32,14 @@ public struct Routine: Identifiable, Codable, Hashable {
         }
     }
 
+    //resolves the routine exercise IDs against the current exercise catalog
     public func exercises(from allExercises: [Exercise]) -> [Exercise] {
+        //routines store exercise IDs, then resolve them against the current exercise catalog
         let lookup = Dictionary(uniqueKeysWithValues: allExercises.map { ($0.id, $0) })
         return exerciseIDs.compactMap { lookup[$0] }
     }
 
+    //returns a readable list of exercise names for routine cards and summaries
     public func exerciseSummary(from allExercises: [Exercise]) -> String {
         let exercises = exercises(from: allExercises)
 
@@ -50,23 +55,18 @@ public struct Routine: Identifiable, Codable, Hashable {
     enum CodingKeys: String, CodingKey {
         case id
         case name
-        case exerciseIDs
         case exerciseTemplates
     }
 
+    //reads routines from the current template-based JSON shape
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-
-        if let templates = try container.decodeIfPresent([RoutineExerciseTemplate].self, forKey: .exerciseTemplates) {
-            exerciseTemplates = templates
-        } else {
-            let ids = try container.decodeIfPresent([String].self, forKey: .exerciseIDs) ?? []
-            exerciseTemplates = ids.map { RoutineExerciseTemplate(exerciseID: $0) }
-        }
+        exerciseTemplates = try container.decode([RoutineExerciseTemplate].self, forKey: .exerciseTemplates)
     }
 
+    //writes routines using the template-based JSON shape
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)

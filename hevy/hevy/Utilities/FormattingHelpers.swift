@@ -11,6 +11,7 @@ extension TimeInterval {
 }
 
 struct MainButtonModifier: ViewModifier {
+    //applies the shared green primary button styling
     func body(content: Content) -> some View {
         content
             .font(.headline)
@@ -23,6 +24,7 @@ struct MainButtonModifier: ViewModifier {
 }
 
 extension View {
+    //adds the app's shared primary button style to any SwiftUI view
     func mainButtonStyle() -> some View {
         return modifier(MainButtonModifier())
     }

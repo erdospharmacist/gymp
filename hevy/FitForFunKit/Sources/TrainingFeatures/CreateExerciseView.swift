@@ -7,6 +7,7 @@ public struct CreateExerciseView: View {
 
     public let onSave: (ExerciseDraft) -> Void
 
+    //creates the view with a callback that receives the finished exercise draft
     public init(_ onSave: @escaping (ExerciseDraft) -> Void) {
         self.onSave = onSave
     }

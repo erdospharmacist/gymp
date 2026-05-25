@@ -12,6 +12,7 @@ final class WorkoutSessionViewModel: ObservableObject {
     //
     private let store: WorkoutSessionStore?
 
+    //creates an editable view model for one workout session
     init(session: WorkoutSession) {
         self.draft = WorkoutDraft(session: session)
 
@@ -34,6 +35,7 @@ final class WorkoutSessionViewModel: ObservableObject {
 
     // MARK: - Exercise management
 
+    //adds an exercise block to the workout and saves the draft
     func addExercise(_ exercise: Exercise) {
         let workoutExercise = WorkoutExercise(
             exerciseID: exercise.id,
@@ -44,6 +46,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         saveSession()
     }
 
+    //removes an exercise block from the workout and saves the draft
     func removeExercise(_ workoutExerciseID: UUID) {
         draft.exercises.removeAll { $0.id == workoutExerciseID }
         saveSession()
@@ -51,6 +54,7 @@ final class WorkoutSessionViewModel: ObservableObject {
 
     // MARK: - Set management
 
+    //adds a new set to a workout exercise, optionally seeded with previous values
     func addSet(
         to workoutExerciseID: UUID,
         weight: Double = 0,
@@ -72,6 +76,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    //removes a set from a workout exercise and saves the draft
     func removeSet(from workoutExerciseID: UUID, setID: UUID) {
         updateExercise(workoutExerciseID) { workoutExercise in
             workoutExercise.sets.removeAll { $0.id == setID }
@@ -79,12 +84,14 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    //toggles whether one set is marked complete
     func toggleSetCompleted(workoutExerciseID: UUID, setID: UUID) {
         updateSet(workoutExerciseID: workoutExerciseID, setID: setID) { set in
             set.isCompleted.toggle()
         }
     }
 
+    //updates both weight and reps for one set
     func updateSet(
         workoutExerciseID: UUID,
         setID: UUID,
@@ -97,6 +104,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    //updates just the weight for one set
     func updateSetWeight(
         workoutExerciseID: UUID,
         setID: UUID,
@@ -107,6 +115,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    //updates just the reps for one set
     func updateSetReps(
         workoutExerciseID: UUID,
         setID: UUID,
@@ -119,6 +128,7 @@ final class WorkoutSessionViewModel: ObservableObject {
 
     // MARK: - Session lifecycle
 
+    //renames the workout session when the new name is not blank
     func renameSession(to newName: String) {
         let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -127,10 +137,12 @@ final class WorkoutSessionViewModel: ObservableObject {
         saveSession()
     }
 
+    //marks the workout as finished and saves it with an end time
     func finishWorkout() {
         saveSession(endedAt: Date())
     }
 
+    //deletes the current workout session from storage
     func discardWorkout() {
         guard let store else {
             errorMessage = "Workout storage is unavailable."
@@ -147,10 +159,12 @@ final class WorkoutSessionViewModel: ObservableObject {
 
     // MARK: - Persistence
 
+    //saves the workout as still in progress
     func saveSession() {
         saveSession(endedAt: nil)
     }
 
+    //saves the workout with the provided end time state
     private func saveSession(endedAt: Date?) {
         guard let store else {
             errorMessage = "Workout storage is unavailable."
@@ -165,6 +179,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    //reloads the current workout from storage if it still exists
     func reloadSession() {
         guard let store else {
             errorMessage = "Workout storage is unavailable."
@@ -183,6 +198,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    //applies a change to one workout exercise and saves when it changed
     private func updateExercise(
         _ workoutExerciseID: UUID,
         _ update: (inout WorkoutExercise) -> Bool
@@ -196,6 +212,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    //applies a change to one set inside one workout exercise
     private func updateSet(
         workoutExerciseID: UUID,
         setID: UUID,
