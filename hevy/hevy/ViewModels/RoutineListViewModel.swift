@@ -47,8 +47,8 @@ final class RoutineListViewModel: ObservableObject {
     //links an exercise to a routine if it is not already included
     func addExercise(_ exercise: Exercise, to routine: Routine) {
         guard let index = routines.firstIndex(where: { $0.id == routine.id }) else { return }
-        if !routines[index].exerciseIDs.contains(exercise.id) {
-            routines[index].exerciseIDs.append(exercise.id)
+        if !routines[index].exerciseTemplates.contains(where: { $0.exerciseID == exercise.id }) {
+            routines[index].exerciseTemplates.append(RoutineExerciseTemplate(exerciseID: exercise.id))
             saveRoutines()
         }
     }
@@ -56,7 +56,7 @@ final class RoutineListViewModel: ObservableObject {
     //removes an exercise link from a routine without deleting the exercise itself
     func removeExercise(_ exerciseID: String, from routine: Routine) {
         guard let index = routines.firstIndex(where: { $0.id == routine.id }) else { return }
-        routines[index].exerciseIDs.removeAll { $0 == exerciseID }
+        routines[index].exerciseTemplates.removeAll { $0.exerciseID == exerciseID }
         saveRoutines()
     }
 

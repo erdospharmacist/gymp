@@ -64,8 +64,8 @@ struct RoutineCardView: View {
                     .mainButtonStyle()
             }
             .buttonStyle(.plain)
-            .disabled(routine.exerciseIDs.isEmpty)
-            .opacity(routine.exerciseIDs.isEmpty ? 0.5 : 1.0)
+            .disabled(routine.exerciseTemplates.isEmpty)
+            .opacity(routine.exerciseTemplates.isEmpty ? 0.5 : 1.0)
         }
         .padding()
         .background(Color(.systemBackground))

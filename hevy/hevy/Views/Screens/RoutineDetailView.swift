@@ -35,7 +35,7 @@ struct RoutineDetailView: View {
                             }
                             .font(.headline)
                         }
-                        .disabled(routine.exerciseIDs.isEmpty)
+                        .disabled(routine.exerciseTemplates.isEmpty)
                     }
 
                     Section("Routine Name") {
@@ -80,11 +80,11 @@ struct RoutineDetailView: View {
                     ExercisePickerView(
                         title: "Edit Exercises",
                         allExercises: allExercises,
-                        selectedExerciseIDs: Set(routine.exerciseIDs),
+                        selectedExerciseIDs: Set(routine.exerciseTemplates.map(\.exerciseID)),
                         allowsCreation: true,
                         onPick: { exercise in
                             guard let routine = routineViewModel.routine(withID: routineID) else { return }
-                            if routine.exerciseIDs.contains(exercise.id) {
+                            if routine.exerciseTemplates.contains(where: { $0.exerciseID == exercise.id }) {
                                 routineViewModel.removeExercise(exercise.id, from: routine)
                             } else {
                                 routineViewModel.addExercise(exercise, to: routine)

@@ -5,38 +5,22 @@ public struct Routine: Identifiable, Codable, Hashable {
     public var name: String
     public var exerciseTemplates: [RoutineExerciseTemplate]
 
-    //creates a routine from a simple list of exercise IDs
-    public init(id: String = UUID().uuidString, name: String, exerciseIDs: [String] = []) {
-        self.id = id
-        self.name = name
-        self.exerciseTemplates = exerciseIDs.map { RoutineExerciseTemplate(exerciseID: $0) }
-    }
-
     //creates a routine from full exercise templates with set and rep targets
     public init(
         id: String = UUID().uuidString,
         name: String,
-        exerciseTemplates: [RoutineExerciseTemplate]
+        exerciseTemplates: [RoutineExerciseTemplate] = []
     ) {
         self.id = id
         self.name = name
         self.exerciseTemplates = exerciseTemplates
     }
 
-    public var exerciseIDs: [String] {
-        get {
-            exerciseTemplates.map(\.exerciseID)
-        }
-        set {
-            exerciseTemplates = newValue.map { RoutineExerciseTemplate(exerciseID: $0) }
-        }
-    }
-
     //resolves the routine exercise IDs against the current exercise catalog
     public func exercises(from allExercises: [Exercise]) -> [Exercise] {
         //routines store exercise IDs, then resolve them against the current exercise catalog
         let lookup = Dictionary(uniqueKeysWithValues: allExercises.map { ($0.id, $0) })
-        return exerciseIDs.compactMap { lookup[$0] }
+        return exerciseTemplates.compactMap { lookup[$0.exerciseID] }
     }
 
     //returns a readable list of exercise names for routine cards and summaries
