@@ -1,8 +1,12 @@
 import SwiftUI
-import TrainingCore
 
-struct ExerciseDetailView: View {
-    let exercise: Exercise
+public struct ExerciseDetailView: View {
+    private let exercise: Exercise
+
+    //creates a read-only details screen for one exercise definition
+    public init(exercise: Exercise) {
+        self.exercise = exercise
+    }
 
     private var primaryMusclesText: String {
         //ternary if else
@@ -13,7 +17,7 @@ struct ExerciseDetailView: View {
         exercise.secondaryMuscles.isEmpty ? "None" : exercise.secondaryMuscles.joined(separator: ", ")
     }
 
-    var body: some View {
+    public var body: some View {
         Form {
             Section("Basic Info") {
                 LabeledContent("Name", value: exercise.name)
@@ -59,21 +63,21 @@ struct ExerciseDetailView: View {
     }
 }
 
-private let exampleExercise = Exercise(
-    id: "Barbell_Bench_Press",
-    name: "Barbell Bench Press",
-    force: "push",
-    level: "beginner",
-    mechanic: "compound",
-    equipment: "barbell",
-    primaryMuscles: ["chest"],
-    secondaryMuscles: ["triceps", "shoulders"],
-    instructions: [],
-    category: "strength",
-    images: []
-)
-
 #Preview {
+    let exampleExercise = Exercise(
+        id: "Barbell_Bench_Press",
+        name: "Barbell Bench Press",
+        force: "push",
+        level: "beginner",
+        mechanic: "compound",
+        equipment: "barbell",
+        primaryMuscles: ["chest"],
+        secondaryMuscles: ["triceps", "shoulders"],
+        instructions: [],
+        category: "strength",
+        images: []
+    )
+
     NavigationStack {
         ExerciseDetailView(exercise: exampleExercise)
     }

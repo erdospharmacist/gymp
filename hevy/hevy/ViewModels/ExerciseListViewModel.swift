@@ -38,11 +38,26 @@ final class ExerciseListViewModel: ObservableObject {
     //turns a draft into a saved user exercise and refreshes the list
     func createExercise(from draft: ExerciseDraft) {
         let newExercise = draft.toExercise()
+        //protects saved storage in case a duplicate name gets past the create form
+        guard !exerciseNameExists(newExercise.name) else {
+            print("didnt save: exercise name already exists")
+            return
+        }
+
         do {
             try store.addUserExercise(newExercise)
             loadExercises()
         } catch {
             print("didnt save: \(error)")
+        }
+    }
+
+    //checks whether an exercise name already exists in the loaded catalog
+    private func exerciseNameExists(_ name: String) -> Bool {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return exercises.contains {
+            $0.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                .localizedCaseInsensitiveCompare(trimmedName) == .orderedSame
         }
     }
 
