@@ -18,6 +18,7 @@ final class WorkoutSessionViewModel: ObservableObject {
 
         do {
             self.store = try WorkoutSessionStore()
+            applyPreviousValuesFromHistory()
         } catch {
             self.store = nil
             self.errorMessage = "Failed to initialise workout storage: \(error)"
@@ -52,6 +53,21 @@ final class WorkoutSessionViewModel: ObservableObject {
         saveSession()
     }
 
+    //moves one exercise block up or down inside the active workout
+    func moveExercise(_ workoutExerciseID: UUID, by offset: Int) {
+        guard let currentIndex = draft.exercises.firstIndex(where: { $0.id == workoutExerciseID }) else {
+            return
+        }
+
+        let newIndex = currentIndex + offset
+        guard draft.exercises.indices.contains(newIndex) else {
+            return
+        }
+
+        draft.exercises.swapAt(currentIndex, newIndex)
+        saveSession()
+    }
+
     // MARK: - Set management
 
     //adds a new set to a workout exercise, optionally seeded with previous values
@@ -62,15 +78,18 @@ final class WorkoutSessionViewModel: ObservableObject {
         previousWeight: Double? = nil,
         previousReps: Int? = nil
     ) {
-        let newSet = WorkoutSet(
-            weight: weight,
-            reps: reps,
-            isCompleted: false,
-            previousWeight: previousWeight,
-            previousReps: previousReps
-        )
+        let previousSetsByExerciseID = latestPreviousCompletedSetsByExerciseID()
 
         updateExercise(workoutExerciseID) { workoutExercise in
+            let historicalPreviousSet = previousSetsByExerciseID[workoutExercise.exerciseID]?[safe: workoutExercise.sets.count]
+            let newSet = WorkoutSet(
+                weight: weight,
+                reps: reps,
+                isCompleted: false,
+                previousWeight: previousWeight ?? historicalPreviousSet?.weight,
+                previousReps: previousReps ?? historicalPreviousSet?.reps
+            )
+
             workoutExercise.sets.append(newSet)
             return true
         }
@@ -87,6 +106,10 @@ final class WorkoutSessionViewModel: ObservableObject {
     //toggles whether one set is marked complete
     func toggleSetCompleted(workoutExerciseID: UUID, setID: UUID) {
         updateSet(workoutExerciseID: workoutExerciseID, setID: setID) { set in
+            if !set.isCompleted {
+                set.fillCurrentValuesFromPreviousIfEmpty()
+            }
+
             set.isCompleted.toggle()
         }
     }
@@ -192,9 +215,55 @@ final class WorkoutSessionViewModel: ObservableObject {
             }
 
             draft = WorkoutDraft(session: reloaded)
+            applyPreviousValuesFromHistory()
             errorMessage = nil
         } catch {
             errorMessage = "Failed to reload workout session: \(error)"
+        }
+    }
+
+    //fills each set's previous-value hint from the latest completed workout containing that exercise
+    private func applyPreviousValuesFromHistory() {
+        let previousSetsByExerciseID = latestPreviousCompletedSetsByExerciseID()
+        guard !previousSetsByExerciseID.isEmpty else { return }
+
+        for exerciseIndex in draft.exercises.indices {
+            let exerciseID = draft.exercises[exerciseIndex].exerciseID
+            guard let previousSets = previousSetsByExerciseID[exerciseID] else { continue }
+
+            for setIndex in draft.exercises[exerciseIndex].sets.indices {
+                guard let previousSet = previousSets[safe: setIndex] else { continue }
+                draft.exercises[exerciseIndex].sets[setIndex].setPreviousValues(
+                    weight: previousSet.weight,
+                    reps: previousSet.reps
+                )
+            }
+        }
+    }
+
+    //collects the most recent completed set list for each exercise from finished workout history
+    private func latestPreviousCompletedSetsByExerciseID() -> [String: [WorkoutSet]] {
+        guard let store else { return [:] }
+
+        do {
+            let previousSessions = try store.loadSessions()
+                .filter { $0.id != draft.id && $0.endedAt != nil && $0.startedAt < draft.startedAt }
+                .sorted { $0.startedAt > $1.startedAt }
+
+            var previousSetsByExerciseID: [String: [WorkoutSet]] = [:]
+            for session in previousSessions {
+                for workoutExercise in session.exercises where previousSetsByExerciseID[workoutExercise.exerciseID] == nil {
+                    let completedSets = workoutExercise.sets.filter(\.isCompleted)
+                    if !completedSets.isEmpty {
+                        previousSetsByExerciseID[workoutExercise.exerciseID] = completedSets
+                    }
+                }
+            }
+
+            return previousSetsByExerciseID
+        } catch {
+            errorMessage = "Failed to load previous workout values: \(error)"
+            return [:]
         }
     }
 
@@ -226,5 +295,12 @@ final class WorkoutSessionViewModel: ObservableObject {
             update(&workoutExercise.sets[setIndex])
             return true
         }
+    }
+}
+
+private extension Array {
+    //safely reads an array item when optional historical set data may not exist
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }

@@ -20,7 +20,8 @@ struct WorkoutSetRowView: View {
 
             Text(set.previousSummary ?? "-")
                 .font(.title3)
-                .foregroundColor(set.isCompleted ? .primary : .secondary)
+                //previous values stay grey so they read as reference data, not current inputs
+                .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             TextField("0", value: $weight, format: .number)

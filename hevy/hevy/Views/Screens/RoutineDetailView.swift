@@ -81,7 +81,6 @@ struct RoutineDetailView: View {
                         title: "Edit Exercises",
                         allExercises: allExercises,
                         selectedExerciseIDs: Set(routine.exerciseTemplates.map(\.exerciseID)),
-                        allowsCreation: true,
                         onPick: { exercise in
                             guard let routine = routineViewModel.routine(withID: routineID) else { return }
                             if routine.exerciseTemplates.contains(where: { $0.exerciseID == exercise.id }) {
@@ -89,10 +88,6 @@ struct RoutineDetailView: View {
                             } else {
                                 routineViewModel.addExercise(exercise, to: routine)
                             }
-                        },
-                        onCreate: { exercise in
-                            guard let routine = routineViewModel.routine(withID: routineID) else { return }
-                            routineViewModel.addExercise(exercise, to: routine)
                         }
                     )
                 }

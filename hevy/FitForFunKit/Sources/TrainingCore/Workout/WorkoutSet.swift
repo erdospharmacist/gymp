@@ -34,6 +34,23 @@ public struct WorkoutSet: Identifiable, Codable, Hashable {
         guard let previousWeight, let previousReps else { return nil }
         return "\(previousWeight.kgText) x \(previousReps)"
     }
+
+    //updates the grey previous-value hint shown beside a set
+    public mutating func setPreviousValues(weight: Double?, reps: Int?) {
+        previousWeight = weight
+        previousReps = reps
+    }
+
+    //copies previous values into blank current fields when a set is marked complete
+    public mutating func fillCurrentValuesFromPreviousIfEmpty() {
+        if weight == 0, let previousWeight {
+            weight = previousWeight
+        }
+
+        if reps == 0, let previousReps {
+            reps = previousReps
+        }
+    }
 }
 
 public extension Double {

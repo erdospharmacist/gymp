@@ -4,6 +4,10 @@ import TrainingCore
 struct WorkoutExerciseSectionView: View {
     @ObservedObject var viewModel: WorkoutSessionViewModel
     let workoutExercise: WorkoutExercise
+    let canMoveUp: Bool
+    let canMoveDown: Bool
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -14,6 +18,21 @@ struct WorkoutExerciseSectionView: View {
                     .fontWeight(.medium)
 
                 Spacer()
+
+                //moves exercise blocks within the active workout without changing the exercise itself
+                Button {
+                    onMoveUp()
+                } label: {
+                    Image(systemName: "chevron.up")
+                }
+                .disabled(!canMoveUp)
+
+                Button {
+                    onMoveDown()
+                } label: {
+                    Image(systemName: "chevron.down")
+                }
+                .disabled(!canMoveDown)
 
                 Button(role: .destructive) {
                     viewModel.removeExercise(workoutExercise.id)
@@ -71,14 +90,7 @@ struct WorkoutExerciseSectionView: View {
 
             // Add set button
             Button {
-                let previous = workoutExercise.sets.last
-                viewModel.addSet(
-                    to: workoutExercise.id,
-                    weight: previous?.weight ?? 0,
-                    reps: previous?.reps ?? 0,
-                    previousWeight: previous?.weight,
-                    previousReps: previous?.reps
-                )
+                viewModel.addSet(to: workoutExercise.id)
             } label: {
                 Text("add set")
                     .font(.title3)

@@ -47,10 +47,18 @@ struct WorkoutSessionView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 40)
                 } else {
-                    ForEach(viewModel.session.exercises) { workoutExercise in
+                    ForEach(Array(viewModel.session.exercises.enumerated()), id: \.element.id) { index, workoutExercise in
                         WorkoutExerciseSectionView(
                             viewModel: viewModel,
-                            workoutExercise: workoutExercise
+                            workoutExercise: workoutExercise,
+                            canMoveUp: index > 0,
+                            canMoveDown: index < viewModel.session.exercises.count - 1,
+                            onMoveUp: {
+                                viewModel.moveExercise(workoutExercise.id, by: -1)
+                            },
+                            onMoveDown: {
+                                viewModel.moveExercise(workoutExercise.id, by: 1)
+                            }
                         )
                     }
                 }
@@ -89,12 +97,10 @@ struct WorkoutSessionView: View {
                 title: "Add Exercise",
                 allExercises: allExercises,
                 selectedExerciseIDs: [],
-                allowsCreation: false,
                 onPick: { exercise in
                     viewModel.addExercise(exercise)
                     showingExercisePicker = false
-                },
-                onCreate: { _ in }
+                }
             )
         }
         .alert("Discard Workout?", isPresented: $showingDiscardAlert) {
