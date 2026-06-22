@@ -74,7 +74,7 @@ public struct WorkoutExercise: Identifiable, Codable, Hashable {
     }
 
     public var totalSets: Int {
-        sets.count
+        completedSets
     }
 
     public var completedSets: Int {
@@ -85,6 +85,7 @@ public struct WorkoutExercise: Identifiable, Codable, Hashable {
     //reduce adds everything together
     //the closure specifies it is adding over the running total
     public var totalVolume: Double {
-        sets.reduce(0.0) { $0 + $1.volume }
+        //only completed green-ticked sets count toward workout volume and stats
+        sets.filter(\.isCompleted).reduce(0.0) { $0 + $1.volume }
     }
 }

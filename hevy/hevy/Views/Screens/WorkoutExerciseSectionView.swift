@@ -14,8 +14,8 @@ struct WorkoutExerciseSectionView: View {
             // Exercise title + delete button
             HStack {
                 Text(workoutExercise.exerciseNameSnapshot)
-                    .font(.largeTitle)
-                    .fontWeight(.medium)
+                    .font(.title3)
+                    .fontWeight(.semibold)
 
                 Spacer()
 
@@ -99,7 +99,9 @@ struct WorkoutExerciseSectionView: View {
             .buttonStyle(.bordered)
             .padding(.top, 4)
         }
-        .padding(.vertical, 8)
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private var headerRow: some View {
@@ -119,7 +121,7 @@ struct WorkoutExerciseSectionView: View {
             Color.clear
                 .frame(width: 44)
         }
-        .font(.title3)
+        .font(.subheadline)
         .foregroundColor(.primary)
     }
 

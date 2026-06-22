@@ -22,7 +22,7 @@ struct WorkoutSessionView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            LazyVStack(spacing: 14) {
                 WorkoutSummaryHeaderView(
                     title: viewModel.session.name,
                     duration: durationText,
@@ -66,30 +66,22 @@ struct WorkoutSessionView: View {
                 Button {
                     showingExercisePicker = true
                 } label: {
-                    Text("add exercise")
-                        .font(.title3)
+                    Label("add exercise", systemImage: "plus")
+                        .font(.headline)
                         .fontWeight(.medium)
                         .frame(maxWidth: 220)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
 
-                HStack(spacing: 16) {
-                    Button("settings") {
-                        // placeholder
-                    }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
-
-                    Button("discard workout", role: .destructive) {
-                        showingDiscardAlert = true
-                    }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
+                Button("discard workout", role: .destructive) {
+                    showingDiscardAlert = true
                 }
+                .buttonStyle(.bordered)
+                .frame(maxWidth: .infinity)
             }
             .padding()
         }
-        .background(Color(.systemGray6))
+        .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingExercisePicker) {

@@ -13,11 +13,9 @@ final class RoutineListViewModel: ObservableObject {
         loadRoutines()
     }
 
-    //reloads routines from storage and keeps them sorted by name
+    //reloads routines from storage while preserving the user's saved order
     func loadRoutines() {
-        routines = store.loadRoutines().sorted {
-            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-        }
+        routines = store.loadRoutines()
     }
 
     //creates a new routine after trimming blank text
@@ -53,10 +51,37 @@ final class RoutineListViewModel: ObservableObject {
         }
     }
 
+    //adds or updates the full routine exercise template for one exercise
+    func saveExerciseTemplate(_ template: RoutineExerciseTemplate, to routine: Routine) {
+        guard let routineIndex = routines.firstIndex(where: { $0.id == routine.id }) else { return }
+
+        if let exerciseIndex = routines[routineIndex].exerciseTemplates.firstIndex(where: { $0.exerciseID == template.exerciseID }) {
+            routines[routineIndex].exerciseTemplates[exerciseIndex] = template
+        } else {
+            routines[routineIndex].exerciseTemplates.append(template)
+        }
+
+        saveRoutines()
+    }
+
     //removes an exercise link from a routine without deleting the exercise itself
     func removeExercise(_ exerciseID: String, from routine: Routine) {
         guard let index = routines.firstIndex(where: { $0.id == routine.id }) else { return }
         routines[index].exerciseTemplates.removeAll { $0.exerciseID == exerciseID }
+        saveRoutines()
+    }
+
+    //reorders routine exercise templates and persists the new order
+    func moveExerciseTemplates(in routine: Routine, from source: IndexSet, to destination: Int) {
+        guard let routineIndex = routines.firstIndex(where: { $0.id == routine.id }) else { return }
+
+        moveItems(&routines[routineIndex].exerciseTemplates, from: source, to: destination)
+        saveRoutines()
+    }
+
+    //reorders routines and persists the new order
+    func moveRoutine(from source: IndexSet, to destination: Int) {
+        moveItems(&routines, from: source, to: destination)
         saveRoutines()
     }
 
@@ -74,5 +99,17 @@ final class RoutineListViewModel: ObservableObject {
         } catch {
             print("Failed to save routines: \(error)")
         }
+    }
+
+    //moves array items without depending on SwiftUI-only collection helpers
+    private func moveItems<T>(_ items: inout [T], from source: IndexSet, to destination: Int) {
+        let movingItems = source.map { items[$0] }
+
+        for index in source.sorted(by: >) {
+            items.remove(at: index)
+        }
+
+        let adjustedDestination = destination - source.filter { $0 < destination }.count
+        items.insert(contentsOf: movingItems, at: adjustedDestination)
     }
 }

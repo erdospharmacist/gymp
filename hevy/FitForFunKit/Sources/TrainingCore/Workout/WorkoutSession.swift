@@ -26,7 +26,7 @@ public struct WorkoutSession: Identifiable, Codable, Hashable {
     }
 
     public var totalSets: Int {
-        exercises.reduce(0) { $0 + $1.sets.count }
+        exercises.reduce(0) { $0 + $1.totalSets }
     }
 
     public var totalVolume: Double {

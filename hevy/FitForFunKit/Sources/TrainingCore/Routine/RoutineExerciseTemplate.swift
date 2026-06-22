@@ -20,4 +20,16 @@ public struct RoutineExerciseTemplate: Identifiable, Codable, Hashable {
         self.targetReps = targetReps
         self.notes = notes
     }
+
+    //summarises the planned work for routine exercise rows
+    public var trainingSummary: String {
+        let setWord = targetSets == 1 ? "set" : "sets"
+
+        guard let targetReps else {
+            return "\(targetSets) \(setWord)"
+        }
+
+        let repWord = targetReps == 1 ? "rep" : "reps"
+        return "\(targetSets) \(setWord) x \(targetReps) \(repWord)"
+    }
 }

@@ -13,11 +13,6 @@ struct RoutineDetailView: View {
         routineViewModel.routine(withID: routineID)
     }
 
-    private var routineExercises: [Exercise] {
-        guard let routine else { return [] }
-        return routine.exercises(from: allExercises)
-    }
-
     var body: some View {
         Group {
             if let routine {
@@ -47,20 +42,50 @@ struct RoutineDetailView: View {
                     }
 
                     Section("Exercises") {
-                        if routineExercises.isEmpty {
+                        if routine.exerciseTemplates.isEmpty {
                             Text("No exercises in this routine yet")
                                 .foregroundColor(.secondary)
                         } else {
-                            ForEach(routineExercises) { exercise in
-                                NavigationLink(destination: ExerciseDetailView(exercise: exercise)) {
-                                    Text(exercise.name)
+                            ForEach(routine.exerciseTemplates) { template in
+                                if let exercise = exercise(for: template) {
+                                    NavigationLink {
+                                        RoutineExerciseDetailFormView(
+                                            exercise: exercise,
+                                            template: template,
+                                            onDone: { updatedTemplate in
+                                                guard let routine = routineViewModel.routine(withID: routineID) else { return }
+                                                routineViewModel.saveExerciseTemplate(updatedTemplate, to: routine)
+                                            }
+                                        )
+                                    } label: {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(exercise.name)
+
+                                            Text(template.trainingSummary)
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+
+                                            if !template.notes.isEmpty {
+                                                Text(template.notes)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.secondary)
+                                                    .lineLimit(2)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Text("Missing exercise: \(template.exerciseID)")
+                                        .foregroundColor(.secondary)
                                 }
                             }
                             .onDelete { offsets in
-                                let idsToRemove = offsets.map { routineExercises[$0].id }
+                                let idsToRemove = offsets.map { routine.exerciseTemplates[$0].exerciseID }
                                 for id in idsToRemove {
                                     routineViewModel.removeExercise(id, from: routine)
                                 }
+                            }
+                            .onMove { source, destination in
+                                routineViewModel.moveExerciseTemplates(in: routine, from: source, to: destination)
                             }
                         }
                     }
@@ -68,6 +93,10 @@ struct RoutineDetailView: View {
                 .navigationTitle(routine.name)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        EditButton()
+                    }
+
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showingExercisePicker = true
@@ -77,17 +106,15 @@ struct RoutineDetailView: View {
                     }
                 }
                 .sheet(isPresented: $showingExercisePicker) {
-                    ExercisePickerView(
-                        title: "Edit Exercises",
+                    RoutineExercisePickerView(
                         allExercises: allExercises,
-                        selectedExerciseIDs: Set(routine.exerciseTemplates.map(\.exerciseID)),
-                        onPick: { exercise in
+                        existingTemplates: routine.exerciseTemplates,
+                        onSave: { template in
                             guard let routine = routineViewModel.routine(withID: routineID) else { return }
-                            if routine.exerciseTemplates.contains(where: { $0.exerciseID == exercise.id }) {
-                                routineViewModel.removeExercise(exercise.id, from: routine)
-                            } else {
-                                routineViewModel.addExercise(exercise, to: routine)
-                            }
+                            routineViewModel.saveExerciseTemplate(template, to: routine)
+                        },
+                        onFinish: {
+                            showingExercisePicker = false
                         }
                     )
                 }
@@ -99,5 +126,10 @@ struct RoutineDetailView: View {
                     .foregroundColor(.secondary)
             }
         }
+    }
+
+    //resolves one routine exercise template against the current exercise catalog
+    private func exercise(for template: RoutineExerciseTemplate) -> Exercise? {
+        allExercises.first { $0.id == template.exerciseID }
     }
 }

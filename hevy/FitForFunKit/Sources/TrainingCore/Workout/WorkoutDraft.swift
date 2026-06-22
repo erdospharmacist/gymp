@@ -33,13 +33,25 @@ public struct WorkoutDraft: Identifiable, Hashable {
 
     //turns the draft into a session that can be saved, optionally marking it finished
     public func loggedSession(endedAt: Date? = Date()) -> WorkoutSession {
-        WorkoutSession(
+        //finished workouts only keep exercises and sets that were actually completed
+        let savedExercises = endedAt == nil ? exercises : completedExercises
+
+        return WorkoutSession(
             id: id,
             routineID: routineID,
             name: name,
             startedAt: startedAt,
             endedAt: endedAt,
-            exercises: exercises
+            exercises: savedExercises
         )
+    }
+
+    //removes unticked sets before saving a completed workout to history
+    private var completedExercises: [WorkoutExercise] {
+        exercises.compactMap { exercise in
+            var completedExercise = exercise
+            completedExercise.sets = exercise.sets.filter(\.isCompleted)
+            return completedExercise.sets.isEmpty ? nil : completedExercise
+        }
     }
 }

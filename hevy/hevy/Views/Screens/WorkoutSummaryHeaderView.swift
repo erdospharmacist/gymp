@@ -8,11 +8,11 @@ struct WorkoutSummaryHeaderView: View {
     let onFinish: () -> Void
 
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 14) {
             HStack(alignment: .top) {
                 Text(title)
-                    .font(.largeTitle)
-                    .fontWeight(.medium)
+                    .font(.title2)
+                    .fontWeight(.semibold)
 
                 Spacer()
 
@@ -20,8 +20,7 @@ struct WorkoutSummaryHeaderView: View {
                     onFinish()
                 }
                 .buttonStyle(.bordered)
-                .font(.title3)
-                .padding(.top, 4)
+                .font(.headline)
             }
 
             HStack {
@@ -34,21 +33,18 @@ struct WorkoutSummaryHeaderView: View {
         }
         .padding()
         .background(Color(.systemBackground))
-        .overlay(
-            RoundedRectangle(cornerRadius: 0)
-                .stroke(Color.black, lineWidth: 2)
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     //builds one metric in the workout summary header
     private func statItem(title: String, value: String) -> some View {
         VStack(spacing: 4) {
             Text(title)
-                .font(.headline)
+                .font(.footnote)
                 .foregroundColor(.secondary)
 
             Text(value)
-                .font(.title3)
+                .font(.headline)
                 .fontWeight(.medium)
         }
         .frame(maxWidth: .infinity)

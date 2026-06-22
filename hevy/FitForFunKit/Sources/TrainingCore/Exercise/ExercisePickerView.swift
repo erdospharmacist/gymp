@@ -3,7 +3,7 @@ import SwiftUI
 public struct ExercisePickerView: View {
     private let title: String
     @State private var allExercises: [Exercise]
-    private let selectedExerciseIDs: Set<String>
+    @State private var selectedExerciseIDs: Set<String>
     private let onPick: (Exercise) -> Void
 
     //dismiss done by this https://developer.apple.com/documentation/swiftui/environmentvalues/dismiss
@@ -20,7 +20,7 @@ public struct ExercisePickerView: View {
     ) {
         self.title = title
         _allExercises = State(initialValue: allExercises)
-        self.selectedExerciseIDs = selectedExerciseIDs
+        _selectedExerciseIDs = State(initialValue: selectedExerciseIDs)
         self.onPick = onPick
     }
 
@@ -40,7 +40,7 @@ public struct ExercisePickerView: View {
         NavigationStack {
             List(filteredExercises) { exercise in
                 Button {
-                    onPick(exercise)
+                    handleTap(on: exercise)
                 } label: {
                     HStack {
                         Text(exercise.name)
@@ -65,5 +65,17 @@ public struct ExercisePickerView: View {
                 }
             }
         }
+    }
+
+    //toggles the selected state locally before reporting the picked exercise
+    private func handleTap(on exercise: Exercise) {
+        if selectedExerciseIDs.contains(exercise.id) {
+            selectedExerciseIDs.remove(exercise.id)
+            onPick(exercise)
+            return
+        }
+
+        selectedExerciseIDs.insert(exercise.id)
+        onPick(exercise)
     }
 }

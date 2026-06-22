@@ -8,6 +8,8 @@ struct RoutineCardView: View {
     @ObservedObject var routineViewModel: RoutineListViewModel
     let onDelete: () -> Void
     @State private var showingDeleteConfirmation = false
+    @State private var showingRoutineDetail = false
+    @State private var showingWorkout = false
 
     private var exercisesSummary: String {
         routine.exerciseSummary(from: allExercises)
@@ -30,12 +32,8 @@ struct RoutineCardView: View {
                 Spacer()
 
                 HStack(spacing: 12) {
-                    NavigationLink {
-                        RoutineDetailView(
-                            routineID: routine.id,
-                            routineViewModel: routineViewModel,
-                            allExercises: allExercises
-                        )
+                    Button {
+                        showingRoutineDetail = true
                     } label: {
                         Image(systemName: "square.and.pencil")
                             .foregroundColor(.blue)
@@ -54,11 +52,9 @@ struct RoutineCardView: View {
                 }
             }
 
-            NavigationLink {
-                WorkoutSessionView(
-                    session: WorkoutSession.make(from: routine, allExercises: allExercises),
-                    allExercises: allExercises
-                )
+            //uses a button plus navigation destination so starting a workout stays separate from editing
+            Button {
+                showingWorkout = true
             } label: {
                 Text("Start Routine")
                     .mainButtonStyle()
@@ -66,6 +62,19 @@ struct RoutineCardView: View {
             .buttonStyle(.plain)
             .disabled(routine.exerciseTemplates.isEmpty)
             .opacity(routine.exerciseTemplates.isEmpty ? 0.5 : 1.0)
+        }
+        .navigationDestination(isPresented: $showingRoutineDetail) {
+            RoutineDetailView(
+                routineID: routine.id,
+                routineViewModel: routineViewModel,
+                allExercises: allExercises
+            )
+        }
+        .navigationDestination(isPresented: $showingWorkout) {
+            WorkoutSessionView(
+                session: WorkoutSession.make(from: routine, allExercises: allExercises),
+                allExercises: allExercises
+            )
         }
         .padding()
         .background(Color(.systemBackground))
